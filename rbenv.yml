@@ -1,0 +1,59 @@
+- name: update apt cache
+  apt: update_cache=yes
+  when: ansible_pkg_mgr == "apt"
+
+- name: install build depends
+  apt: pkg={{ item }} state=present install_recommends=no
+  with_items:
+    - build-essential
+    - git
+    - libcurl4-openssl-dev
+    - libffi-dev
+    - libreadline-dev
+    - libssl-dev
+    - libxml2-dev
+    - libxslt1-dev
+    - zlib1g-dev
+  when: ansible_pkg_mgr == "apt"
+
+- name: install build depends
+  yum: name={{ item }} state=present
+  with_items:
+    - gcc
+    - openssl-devel
+    - libyaml-devel
+    - readline-devel
+    - zlib-devel
+    - libffi-devel
+    - git
+  when: ansible_pkg_mgr == "yum"
+
+- name: checkout rbenv_repo
+  git: >
+    repo={{ rbenv_repo }}
+    dest={{ rbenv_root }}
+    force=yes
+  become_user: "{{ rbenv_user }}"
+
+- name: create plugins directory
+  file: path={{ rbenv_root }}/plugins state=directory
+  become_user: "{{ rbenv_user }}"
+
+- name: install plugins
+  git: >
+    repo={{ item.repo }}
+    dest={{ rbenv_root }}/plugins/{{ item.name }}
+    force=yes
+  become_user: "{{ rbenv_user }}"
+  with_items: rbenv_plugins
+
+- shell: "export PATH=$HOME/.rbenv/bin:$PATH && rbenv versions | grep {{ ruby_version }}"
+  register: rbenv_check_install
+  changed_when: False
+  ignore_errors: yes
+  become_user: "{{ rbenv_user }}"
+ 
+- name: install ruby {{ ruby_version }}
+  shell: $SHELL -lc 'export PATH=$HOME/.rbenv/bin:$PATH && export RBENV_ROOT=$HOME/.rbenv && eval "$(rbenv init -)" && rbenv install {{ ruby_version }} && rbenv global {{ ruby_version }} && rbenv rehash'
+  become_user: "{{ rbenv_user }}"
+  when: rbenv_check_install|failed

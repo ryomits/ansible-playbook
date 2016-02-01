@@ -1,0 +1,3 @@
+- name: install packages for ubuntu
+  apt: pkg={{ item }} state=installed force=yes update_cache=yes
+  with_items: packages

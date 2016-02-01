@@ -1,0 +1,15 @@
+[core]
+	quotepath = false
+[user]
+	name = mitsui
+	email = mitsui@sobuline.com
+[color]
+	ui = true
+[gui]
+	encoding = utf-8
+[push]
+	default = simple
+[alias]
+  logg = log --stat --decorate=short --pretty=format:'%C(yellow)%h %Cgreen%cr %Cblue%cn%Cred%d %Creset%s %C(cyan)%b'
+  mergelog = log --merges --pretty=format:'%C(yellow)%h %Cgreen%ci %Cblue%cn%Cred%d %Creset%s %C(cyan)%b'
+  history = log --graph --date=short --decorate=short --pretty=format:'%C(yellow)%h %Cgreen%cd %Cblue%cn%Cred%d %Creset%s'

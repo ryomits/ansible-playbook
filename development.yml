@@ -1,0 +1,42 @@
+- hosts: all
+  become: yes
+  vars:
+    ansible_pkg_mgr: apt
+
+    user: mitsui
+
+    dotfiles:
+      - .zshrc
+      - .gitconfig
+      - .vimrc
+      - .tmux.conf
+
+    packages:
+      - git
+      - tmux
+      - zsh
+      - tig
+      - jq
+
+    rbenv_repo: https://github.com/rbenv/rbenv.git
+    rbenv_user: "{{ user }}"
+    rbenv_root: ~/.rbenv
+    rbenv_plugins:
+      - { name: ruby-build, repo: "https://github.com/rbenv/ruby-build.git" }
+    ruby_version: 2.3.0
+
+  tasks:
+     - name: create user
+       user: name={{ user }} shell=/bin/zsh
+
+     - include: apt_packages.yml
+       when: ansible_pkg_mgr == "apt"
+
+     - include: yum_packages.yml
+       when: ansible_pkg_mgr == "yum"
+
+     - name: copy dotfiles
+       copy: src={{ item }} dest=/home/mitsui owner=mitsui group=mitsui
+       with_items: dotfiles
+
+     - include: rbenv.yml
