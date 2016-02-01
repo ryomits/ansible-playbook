@@ -1,4 +1,4 @@
-# ansible playbook for development
+# ansible playbook
 
 ```
 ansible-playbook -i hosts development.yml
